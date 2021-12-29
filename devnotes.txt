@@ -1,0 +1,27 @@
+Install node
+
+yarn create react-app my-app --template typescript
+Actually, yarn create react-app ./ --template typescript
+
+From https://commercejs.com/docs/sdk/getting-started/#installation
+From https://stripe.com/docs/stripe-js/react
+(@stripe already has TS support, according to npm)
+(react-router has new version 6)
+( add this
+    "lib": ["es6", "dom", "dom.iterable", "esnext"],
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "strictNullChecks": true,
+
+    according to https://mui.com/guides/typescript/
+)
+
+use styled components as styling engine https://mui.com/guides/styled-engine/#how-to-switch-to-styled-components:
+add some to package.json and tsconfig.json
+but adding to tsconfig.json doesn't work, so I added new file tsconfig.paths.json, according to https://github.com/mui-org/material-ui/blob/master/examples/create-react-app-with-styled-components-typescript/package.json
+
+yarn add @mui/material @emotion/react @emotion/styled @mui/icons-material @chec/commerce.js @stripe/react-stripe-js @stripe/stripe-js react-router-dom react-hook-form @mui/styled-engine-sc styled-components
+yarn add -D @types/chec__commerce.js @types/react-router-dom @types/styled-components
+
+yarn start 
+

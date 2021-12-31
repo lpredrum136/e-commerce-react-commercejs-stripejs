@@ -2,13 +2,14 @@ import Typography from '@mui/material/Typography'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import CardMedia, { CardMediaTypeMap } from '@mui/material/CardMedia'
-import { Product } from './Products'
 import CardActions from '@mui/material/CardActions'
 import IconButton from '@mui/material/IconButton'
 import AddShoppingCart from '@mui/icons-material/AddShoppingCart'
 import { styled } from '@mui/material/styles'
 import { OverridableComponent } from '@mui/material/OverridableComponent'
 import { ElementType } from 'react'
+import { Product } from '@chec/commerce.js/types/product'
+import { cleanProductDescription } from '../../helpers/string'
 
 interface Props {
   product: Product
@@ -50,18 +51,20 @@ const ProductItem = ({ product }: Props) => {
       <StyledCardMedia
         // component="img"
         // height="500px"
-        image={product.image}
+        image={product.image?.url}
       />
       <CardContent>
         <StyledCardContentTypography>
           <Typography variant="h5" gutterBottom>
             {product.name}
           </Typography>
-          <Typography variant="h5">{product.price}</Typography>
+          <Typography variant="h5">
+            {product.price.formatted_with_symbol}
+          </Typography>
         </StyledCardContentTypography>
 
         <Typography variant="body2" sx={{ color: 'text.secondary' }}>
-          {product.description}
+          {cleanProductDescription(product.description)}
         </Typography>
       </CardContent>
       <StyledCardActions disableSpacing>

@@ -25,3 +25,7 @@ yarn add -D @types/chec__commerce.js @types/react-router-dom @types/styled-compo
 
 yarn start 
 
+INTEGRATE COMMERCE.js
+https://commercejs.com/docs/guides/products-react
+
+

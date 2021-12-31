@@ -1,6 +1,6 @@
 import React from 'react'
 import './App.css'
-import { Products, Navbar } from './components'
+import { Navbar, Products } from './components'
 
 function App() {
   return (

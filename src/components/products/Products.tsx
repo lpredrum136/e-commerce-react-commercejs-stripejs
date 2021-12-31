@@ -1,9 +1,8 @@
-import { Product } from '@chec/commerce.js/types/product'
-import CircularProgress from '@mui/material/CircularProgress'
 import Grid from '@mui/material/Grid'
-import { useEffect, useState } from 'react'
-import commerce from '../../lib/commerce'
-import ProductItem from './ProductItem'
+import { useContext, useEffect } from 'react'
+import { ProductContext } from '../../contexts/product'
+import ProductItem from '../layout/ProductItem'
+import Spinner from '../layout/Spinner'
 
 // export interface Product {
 //   id: number
@@ -33,31 +32,20 @@ import ProductItem from './ProductItem'
 // ]
 
 const Products = () => {
-  const [loading, setLoading] = useState(true)
-  const [products, setProducts] = useState<Product[]>([])
-
-  const getProducts = async () => {
-    const { data } = await commerce.products.list()
-    setProducts(data)
-    setLoading(false)
-  }
+  const { loading, products, getProducts } = useContext(ProductContext)
 
   useEffect(() => {
     getProducts()
   }, [])
 
-  if (loading) return <CircularProgress />
+  if (loading) return <Spinner />
 
   return (
-    <main>
-      <Grid container justifyContent="center" spacing={4}>
-        {products.map(product => (
-          <Grid item key={product.id} xs={12} sm={6} md={4} lg={3}>
-            <ProductItem product={product} />
-          </Grid>
-        ))}
-      </Grid>
-    </main>
+    <Grid container justifyContent="center" spacing={4} padding="20px">
+      {products.map(product => (
+        <ProductItem source="products" product={product} key={product.id} />
+      ))}
+    </Grid>
   )
 }
 

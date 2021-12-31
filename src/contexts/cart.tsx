@@ -6,13 +6,15 @@ interface CartContextDefault {
   loading: boolean
   cart?: Cart
   getCart: () => Promise<void>
-  addToCart: (productId: string, quantity?: number) => Promise<void>
+  updateCart: (productId: string, operation: 'add' | 'remove') => Promise<void>
+  emptyCart: () => Promise<void>
 }
 
 export const CartContext = createContext<CartContextDefault>({
   loading: true,
   getCart: () => Promise.resolve(),
-  addToCart: () => Promise.resolve()
+  updateCart: () => Promise.resolve(),
+  emptyCart: () => Promise.resolve()
 })
 
 const CartContextProvider = ({ children }: { children: ReactNode }) => {
@@ -26,20 +28,32 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
     setLoading(false)
   }
 
-  const addToCart = async (productId: string, quantity?: number) => {
-    // if quantity is undefined, it is by default 1
-    const response = await commerce.cart.add(productId, quantity)
+  const updateCart: CartContextDefault['updateCart'] = async (
+    productId: string,
+    operation: 'add' | 'remove'
+  ) => {
+    // if quantity is undefined, it is by default 1. If it's smaller than 0, it's removing from cart
+    const response = await commerce.cart.add(
+      productId,
+      operation === 'add' ? undefined : -1
+    )
 
     if (response.success) {
       setCart(response.cart)
     }
   }
 
+  const emptyCart = async () => {
+    const response = await commerce.cart.empty()
+    if (response.success) setCart(response.cart)
+  }
+
   const cartContextData = {
     loading,
     cart,
     getCart,
-    addToCart
+    updateCart,
+    emptyCart
   }
 
   return (

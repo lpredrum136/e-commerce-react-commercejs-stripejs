@@ -56,11 +56,7 @@ const StyledCardActions = styled(CardActions)<{ source: 'cart' | 'products' }>`
 `
 
 const ProductItem = ({ product, source }: Props) => {
-  const { addToCart } = useContext(CartContext)
-
-  const addProductItemToCart = (productId: string) => {
-    addToCart(productId)
-  }
+  const { updateCart } = useContext(CartContext)
 
   return (
     <Grid item xs={3}>
@@ -89,14 +85,30 @@ const ProductItem = ({ product, source }: Props) => {
         <StyledCardActions disableSpacing source={source}>
           {source === 'cart' && (
             <StyledBox>
-              <Button size="small">-</Button>
+              <Button
+                size="small"
+                onClick={() => {
+                  updateCart((product as LineItem).product_id, 'remove')
+                }}
+              >
+                -
+              </Button>
               <Typography>{(product as LineItem).quantity}</Typography>
-              <Button size="small">+</Button>
+              <Button
+                size="small"
+                onClick={() => {
+                  updateCart((product as LineItem).product_id, 'add')
+                }}
+              >
+                +
+              </Button>
             </StyledBox>
           )}
           <IconButton
             aria-label="Add to Cart"
-            onClick={addProductItemToCart.bind(this, product.id)}
+            onClick={() => {
+              updateCart(product.id, 'add')
+            }}
           >
             {source === 'products' ? (
               <AddShoppingCart />

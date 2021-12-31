@@ -1,6 +1,6 @@
 import React from 'react'
 import './App.css'
-import { Navbar, Products } from './components'
+import { Products } from './components'
 import Cart from './components/cart/Cart'
 import CartContextProvider from './contexts/cart'
 import ProductContextProvider from './contexts/product'

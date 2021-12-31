@@ -8,25 +8,29 @@ import { CartContext } from '../../contexts/cart'
 import ProductItem from '../layout/ProductItem'
 import Spinner from '../layout/Spinner'
 import { styled } from '@mui/material/styles'
-// import { StyledTypography } from '../layout/Navbar'
+import { Link } from 'react-router-dom'
 
 const StyledBox = styled(Box)`
   display: flex;
   margin-top: 30px;
+  margin-bottom: 30px;
   align-items: center;
 `
 
 const Cart = () => {
-  const { loading, cart } = useContext(CartContext)
-
-  console.log('CARTTT', cart)
+  const { loading, cart, emptyCart } = useContext(CartContext)
 
   const isEmpty = !cart?.total_items
 
-  const emptyCart = (
-    <Typography variant="h1">
-      You have no items in your shopping cart
-    </Typography>
+  const emptiedCart = (
+    <Box sx={{ textAlign: 'center' }}>
+      <Typography variant="h6">
+        You have no items in your shopping cart
+      </Typography>
+      <Button variant="outlined" component={Link} to="/">
+        Shop now
+      </Button>
+    </Box>
   )
 
   const filledCart = (
@@ -45,6 +49,7 @@ const Cart = () => {
           color="error"
           variant="contained"
           sx={{ marginRight: '5px' }}
+          onClick={emptyCart.bind(this)}
         >
           Empty Cart
         </Button>
@@ -60,7 +65,7 @@ const Cart = () => {
       <Typography variant="h4" gutterBottom>
         Your Shopping Cart
       </Typography>
-      {loading ? <Spinner /> : isEmpty ? emptyCart : filledCart}
+      {loading ? <Spinner /> : isEmpty ? emptiedCart : filledCart}
     </Container>
   )
 }

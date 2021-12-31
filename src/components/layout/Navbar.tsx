@@ -6,6 +6,7 @@ import { styled } from '@mui/material/styles'
 import Toolbar from '@mui/material/Toolbar'
 import Typography from '@mui/material/Typography'
 import { useContext, useEffect } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 import logo from '../../assets/index.png'
 import { CartContext } from '../../contexts/cart'
 
@@ -17,6 +18,7 @@ const StyledAppBar = styled(AppBar)`
 // `
 const Navbar = () => {
   const { getCart, cart } = useContext(CartContext)
+  const { pathname } = useLocation()
 
   useEffect(() => {
     getCart()
@@ -26,14 +28,27 @@ const Navbar = () => {
     <StyledAppBar color="inherit" position="sticky">
       <Toolbar>
         <img src={logo} alt="henry-shop-logo" height="25px" />
-        <Typography variant="h6" flexGrow={1}>
+        <Typography
+          variant="h6"
+          flexGrow={1}
+          component={Link}
+          to="/"
+          sx={{ color: 'inherit', textDecoration: 'none' }}
+        >
           Henry Shop
         </Typography>
-        <IconButton aria-label="Show cart items" color="inherit">
-          <Badge badgeContent={cart?.total_items} color="error">
-            <ShoppingCart />
-          </Badge>
-        </IconButton>
+        {pathname !== '/cart' && (
+          <IconButton
+            aria-label="Show cart items"
+            color="inherit"
+            component={Link}
+            to="/cart"
+          >
+            <Badge badgeContent={cart?.total_items} color="error">
+              <ShoppingCart />
+            </Badge>
+          </IconButton>
+        )}
       </Toolbar>
     </StyledAppBar>
   )

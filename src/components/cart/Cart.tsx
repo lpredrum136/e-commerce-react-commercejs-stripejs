@@ -53,7 +53,13 @@ const Cart = () => {
         >
           Empty Cart
         </Button>
-        <Button size="large" color="primary" variant="contained">
+        <Button
+          size="large"
+          color="primary"
+          variant="contained"
+          component={Link}
+          to="/checkout"
+        >
           Checkout
         </Button>
       </StyledBox>

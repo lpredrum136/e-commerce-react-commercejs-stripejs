@@ -8,7 +8,6 @@ import InputLabel from '@mui/material/InputLabel'
 import MenuItem from '@mui/material/MenuItem'
 import Select from '@mui/material/Select'
 import TextField from '@mui/material/TextField'
-import { LiHTMLAttributes } from 'react'
 import { FieldError, UseFormRegister } from 'react-hook-form'
 import { AddressFormInput } from './AddressForm'
 

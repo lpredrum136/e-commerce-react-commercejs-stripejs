@@ -1,11 +1,6 @@
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
-import FormControl from '@mui/material/FormControl'
-import FormHelperText from '@mui/material/FormHelperText'
 import Grid from '@mui/material/Grid'
-import InputLabel from '@mui/material/InputLabel'
-import MenuItem from '@mui/material/MenuItem'
-import Select from '@mui/material/Select'
 import Typography from '@mui/material/Typography'
 import { useContext, useEffect } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
@@ -21,12 +16,17 @@ export interface AddressFormInput {
   city: string
   zip: string
   shippingCountry: string
+  shippingSubdivision: string
 }
 
 const AddressForm = () => {
   // Shipping details
-  const { getShippingCountries, shippingCountries } =
-    useContext(ShippingContext)
+  const {
+    getShippingCountries,
+    shippingCountries,
+    getShippingSubdivisions,
+    shippingSubdivisions
+  } = useContext(ShippingContext)
 
   useEffect(() => {
     getShippingCountries()
@@ -38,8 +38,15 @@ const AddressForm = () => {
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors }
   } = useForm<AddressFormInput>()
+
+  const shippingCountry = watch('shippingCountry')
+
+  useEffect(() => {
+    if (shippingCountry) getShippingSubdivisions(shippingCountry)
+  }, [shippingCountry])
 
   // Second (proper?) way:
   // const {
@@ -143,6 +150,18 @@ const AddressForm = () => {
             required
             error={errors.shippingCountry}
             options={shippingCountries}
+          />
+
+          <RegisteredFormInput
+            type="select"
+            label="Shipping Subdivision"
+            disabledOptionLabel="Select Subdivision"
+            name="shippingSubdivision"
+            id="shipping-subdivision-select"
+            register={register}
+            required
+            error={errors.shippingSubdivision}
+            options={shippingSubdivisions}
           />
 
           {/* Second way, written inline just to test */}

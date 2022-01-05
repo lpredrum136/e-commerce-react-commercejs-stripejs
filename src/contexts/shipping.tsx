@@ -1,4 +1,5 @@
 import { createContext, ReactNode, useState } from 'react'
+import { shapeResponse } from '../helpers/shapeResponse'
 import commerce from '../lib/commerce'
 
 interface Country {
@@ -6,33 +7,55 @@ interface Country {
   value?: string
 }
 
+interface Subdivision {
+  label: string
+  value?: string
+}
+
 interface ShippingContextDefault {
   shippingCountries: Country[]
+  shippingSubdivisions: Subdivision[]
   getShippingCountries: () => Promise<void>
+  getShippingSubdivisions: (countryCode: string) => Promise<void>
 }
 
 export const ShippingContext = createContext<ShippingContextDefault>({
   shippingCountries: [],
-  getShippingCountries: () => Promise.resolve()
+  shippingSubdivisions: [],
+  getShippingCountries: () => Promise.resolve(),
+  getShippingSubdivisions: () => Promise.resolve()
 })
 
 const ShippingContextProvider = ({ children }: { children: ReactNode }) => {
   const [shippingCountries, setShippingCountries] = useState<Country[]>([])
+  const [shippingSubdivisions, setShippingSubdivisions] = useState<
+    Subdivision[]
+  >([])
 
   const getShippingCountries = async () => {
     const { countries } = await commerce.services.localeListCountries()
 
-    const shapedCountries: Country[] = Object.entries(countries).map(
-      ([countryCode, countryName]) => ({
-        value: countryCode,
-        label: countryName
-      })
-    )
+    const shapedCountries: Country[] = shapeResponse(countries)
 
     setShippingCountries(shapedCountries)
   }
 
-  const shippingContextData = { shippingCountries, getShippingCountries }
+  const getShippingSubdivisions = async (countryCode: string) => {
+    const { subdivisions } = await commerce.services.localeListSubdivisions(
+      countryCode
+    )
+
+    const shapedSubdivisions: Subdivision[] = shapeResponse(subdivisions)
+
+    setShippingSubdivisions(shapedSubdivisions)
+  }
+
+  const shippingContextData = {
+    shippingCountries,
+    shippingSubdivisions,
+    getShippingCountries,
+    getShippingSubdivisions
+  }
 
   return (
     <ShippingContext.Provider value={shippingContextData}>

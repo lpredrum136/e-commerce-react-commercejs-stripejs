@@ -23,6 +23,7 @@ interface CommonFormInput {
   error?: FieldError
   required?: boolean
   id?: string
+  disabled?: boolean
 }
 
 type TextFieldFormInput = CommonFormInput & {
@@ -38,7 +39,7 @@ type SelectFormInput = CommonFormInput & {
 type Props = TextFieldFormInput | SelectFormInput
 
 const RegisteredFormInput = (props: Props) => {
-  const { type, label, name, register, error, required, id } = props
+  const { type, label, name, register, error, required, id, disabled } = props
 
   const formattedLabel = `${label}${required ? ' *' : ''}`
 
@@ -58,7 +59,7 @@ const RegisteredFormInput = (props: Props) => {
           {...register(name, { required })}
         />
       ) : (
-        <FormControl {...defaultInputProps}>
+        <FormControl {...defaultInputProps} disabled={disabled}>
           <InputLabel id={id}>{formattedLabel}</InputLabel>
           <Select
             labelId={id}
@@ -79,6 +80,14 @@ const RegisteredFormInput = (props: Props) => {
           </Select>
           {error?.type === 'required' && (
             <FormHelperText>This field is required</FormHelperText>
+          )}
+
+          {/* Just for the purpose of this project */}
+          {name === 'shippingMethod' && (
+            <FormHelperText>
+              For this project, only US, Canada and Mexico work and will
+              populate this field
+            </FormHelperText>
           )}
         </FormControl>
       )}

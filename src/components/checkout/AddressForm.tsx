@@ -4,8 +4,11 @@ import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { useContext, useEffect } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
+import { Link } from 'react-router-dom'
 import { ShippingContext } from '../../contexts/shipping'
 import RegisteredFormInput from './RegisteredFormInput'
+import ArrowBackIcon from '@mui/icons-material/ArrowBack'
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 // import ControlledFormInput from './ControlledFormInput'
 
 export interface AddressFormInput {
@@ -17,15 +20,19 @@ export interface AddressFormInput {
   zip: string
   shippingCountry: string
   shippingSubdivision: string
+  shippingMethod: string
 }
 
 const AddressForm = () => {
   // Shipping details
   const {
+    loading,
     getShippingCountries,
     shippingCountries,
     getShippingSubdivisions,
-    shippingSubdivisions
+    shippingSubdivisions,
+    getShippingMethods,
+    shippingMethods
   } = useContext(ShippingContext)
 
   useEffect(() => {
@@ -39,14 +46,29 @@ const AddressForm = () => {
     register,
     handleSubmit,
     watch,
+    setValue,
+    resetField,
     formState: { errors }
   } = useForm<AddressFormInput>()
 
   const shippingCountry = watch('shippingCountry')
+  const shippingSubdivision = watch('shippingSubdivision')
 
+  // Get shipping subdivisions based on selected shipping country
   useEffect(() => {
-    if (shippingCountry) getShippingSubdivisions(shippingCountry)
+    if (shippingCountry) {
+      // setValue('shippingSubdivision', '')
+      resetField('shippingSubdivision', { defaultValue: '' }) // kinda the same as setValue() ?
+      getShippingSubdivisions(shippingCountry)
+    }
   }, [shippingCountry])
+
+  // Get shipping methods based on selected shipping country and selected shipping subdivision
+  useEffect(() => {
+    if (shippingSubdivision) {
+      getShippingMethods(shippingCountry, shippingSubdivision)
+    }
+  }, [shippingSubdivision])
 
   // Second (proper?) way:
   // const {
@@ -150,8 +172,8 @@ const AddressForm = () => {
             required
             error={errors.shippingCountry}
             options={shippingCountries}
+            disabled={loading}
           />
-
           <RegisteredFormInput
             type="select"
             label="Shipping Subdivision"
@@ -162,6 +184,19 @@ const AddressForm = () => {
             required
             error={errors.shippingSubdivision}
             options={shippingSubdivisions}
+            disabled={loading}
+          />
+          <RegisteredFormInput
+            type="select"
+            label="Shipping Method"
+            disabledOptionLabel="Select Method"
+            name="shippingMethod"
+            id="shipping-method-select"
+            register={register}
+            required
+            error={errors.shippingMethod}
+            options={shippingMethods}
+            disabled={loading}
           />
 
           {/* Second way, written inline just to test */}
@@ -190,11 +225,32 @@ const AddressForm = () => {
             label="First Name"
             control={control}
           /> */}
-
-          <Grid item xs={6}>
-            <Button type="submit">Submit</Button>
-          </Grid>
         </Grid>
+
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            marginTop: '1rem'
+          }}
+        >
+          <Button
+            component={Link}
+            to="/cart"
+            variant="outlined"
+            color="inherit"
+            startIcon={<ArrowBackIcon />}
+          >
+            Back to Cart
+          </Button>
+          <Button
+            type="submit"
+            variant="contained"
+            endIcon={<ArrowForwardIcon />}
+          >
+            Next
+          </Button>
+        </Box>
       </Box>
     </>
   )

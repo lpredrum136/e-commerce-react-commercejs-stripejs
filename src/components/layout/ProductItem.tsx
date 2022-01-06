@@ -77,6 +77,8 @@ const ProductItem = ({ product, source }: Props) => {
           </StyledCardContentTypography>
 
           {source === 'products' && (
+            // https://mui.com/system/palette/
+            // https://mui.com/customization/default-theme/
             <Typography variant="body2" sx={{ color: 'text.secondary' }}>
               {cleanProductDescription((product as Product).description)}
             </Typography>

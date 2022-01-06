@@ -27,8 +27,8 @@ const Checkout = () => {
       <Typography variant="h4" align="center">
         Checkout
       </Typography>
-      <Stepper activeStep={activeStep}>
-        {steps.map((label, index) => (
+      <Stepper activeStep={activeStep} sx={{ marginY: '1rem' }}>
+        {steps.map(label => (
           <Step key={label}>
             <StepLabel>{label}</StepLabel>
           </Step>

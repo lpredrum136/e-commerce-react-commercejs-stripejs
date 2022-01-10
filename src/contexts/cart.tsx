@@ -1,10 +1,17 @@
 import { Cart } from '@chec/commerce.js/types/cart'
-import { createContext, ReactNode, useState } from 'react'
+import {
+  createContext,
+  Dispatch,
+  ReactNode,
+  SetStateAction,
+  useState
+} from 'react'
 import commerce from '../lib/commerce'
 
 interface CartContextDefault {
   loading: boolean
   cart?: Cart
+  setCart: Dispatch<SetStateAction<Cart | undefined>>
   getCart: () => Promise<void>
   updateCart: (productId: string, operation: 'add' | 'remove') => Promise<void>
   emptyCart: () => Promise<void>
@@ -14,7 +21,8 @@ export const CartContext = createContext<CartContextDefault>({
   loading: true,
   getCart: () => Promise.resolve(),
   updateCart: () => Promise.resolve(),
-  emptyCart: () => Promise.resolve()
+  emptyCart: () => Promise.resolve(),
+  setCart: () => {}
 })
 
 const CartContextProvider = ({ children }: { children: ReactNode }) => {
@@ -23,6 +31,7 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<Cart>()
 
   const getCart = async () => {
+    console.log('GETTING CART...')
     const cart = await commerce.cart.retrieve()
     setCart(cart)
     setLoading(false)
@@ -53,7 +62,8 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
     cart,
     getCart,
     updateCart,
-    emptyCart
+    emptyCart,
+    setCart
   }
 
   return (

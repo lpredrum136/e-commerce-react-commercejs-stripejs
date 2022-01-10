@@ -1,14 +1,11 @@
 import Box from '@mui/material/Box'
-import Button from '@mui/material/Button'
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 import { useContext, useEffect } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
-import { Link } from 'react-router-dom'
 import { ShippingContext } from '../../contexts/shipping'
+import NavButtons from './NavButtons'
 import RegisteredFormInput from './RegisteredFormInput'
-import ArrowBackIcon from '@mui/icons-material/ArrowBack'
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward'
 // import ControlledFormInput from './ControlledFormInput'
 
 export interface AddressFormInput {
@@ -23,7 +20,7 @@ export interface AddressFormInput {
   shippingMethod: string
 }
 
-const AddressForm = () => {
+const AddressForm = ({ goNextStep }: { goNextStep: () => void }) => {
   // Shipping details
   const {
     loading,
@@ -32,7 +29,8 @@ const AddressForm = () => {
     getShippingSubdivisions,
     shippingSubdivisions,
     getShippingMethods,
-    shippingMethods
+    shippingMethods,
+    setShippingAddressData
   } = useContext(ShippingContext)
 
   useEffect(() => {
@@ -92,6 +90,9 @@ const AddressForm = () => {
     // This only runs when there's no validation errors (errors from formState)
     console.log('submitted', data)
     console.log('errors', errors) // so this console.log doesn't really mean anything, because it only reaches this line if there's no error
+
+    setShippingAddressData(data)
+    goNextStep()
   }
 
   return (
@@ -227,30 +228,11 @@ const AddressForm = () => {
           /> */}
         </Grid>
 
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            marginTop: '1rem'
-          }}
-        >
-          <Button
-            component={Link}
-            to="/cart"
-            variant="outlined"
-            color="inherit"
-            startIcon={<ArrowBackIcon />}
-          >
-            Back to Cart
-          </Button>
-          <Button
-            type="submit"
-            variant="contained"
-            endIcon={<ArrowForwardIcon />}
-          >
-            Next
-          </Button>
-        </Box>
+        <NavButtons
+          backLabel="Back to Cart"
+          backLink="/cart"
+          forwardLabel="Next"
+        />
       </Box>
     </>
   )

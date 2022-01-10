@@ -1,11 +1,16 @@
+import { CheckoutCapture } from '@chec/commerce.js/types/checkout-capture'
+import { CheckoutCaptureResponse } from '@chec/commerce.js/types/checkout-capture-response'
 import { CheckoutToken } from '@chec/commerce.js/types/checkout-token'
 import {
   createContext,
+  Dispatch,
   ReactNode,
+  SetStateAction,
   useContext,
   useEffect,
   useState
 } from 'react'
+import { AddressFormInput } from '../components/checkout/AddressForm'
 import { shapeResponse } from '../helpers/shapeResponse'
 import commerce from '../lib/commerce'
 import { CartContext } from './cart'
@@ -25,6 +30,11 @@ interface Method {
   value?: string
 }
 
+type FakeCheckoutCaptureResponse = Pick<
+  CheckoutCaptureResponse,
+  'customer' | 'customer_reference'
+>
+
 interface ShippingContextDefault {
   loading: boolean
   shippingCountries: Country[]
@@ -36,23 +46,43 @@ interface ShippingContextDefault {
     countryCode: string,
     subdivisionCode?: string
   ) => Promise<void>
+  setShippingAddressData: Dispatch<SetStateAction<AddressFormInput | undefined>>
+  setError: Dispatch<SetStateAction<string | undefined>>
+  orderFinished: boolean
+  setOrderFinished: Dispatch<SetStateAction<boolean>>
+  captureCheckout: (newOrder: CheckoutCapture) => Promise<void>
+  refreshCart: () => Promise<void>
+  shippingAddressData?: AddressFormInput
+  token?: CheckoutToken
+  order?: CheckoutCaptureResponse | FakeCheckoutCaptureResponse
+  error?: string
 }
 
 const defaultShippingState: Pick<
   ShippingContextDefault,
-  'loading' | 'shippingCountries' | 'shippingSubdivisions' | 'shippingMethods'
+  | 'loading'
+  | 'shippingCountries'
+  | 'shippingSubdivisions'
+  | 'shippingMethods'
+  | 'orderFinished'
 > = {
   loading: false,
   shippingCountries: [],
   shippingSubdivisions: [],
-  shippingMethods: []
+  shippingMethods: [],
+  orderFinished: false
 }
 
 export const ShippingContext = createContext<ShippingContextDefault>({
   ...defaultShippingState,
   getShippingCountries: () => Promise.resolve(),
   getShippingSubdivisions: () => Promise.resolve(),
-  getShippingMethods: () => Promise.resolve()
+  getShippingMethods: () => Promise.resolve(),
+  setShippingAddressData: () => {},
+  captureCheckout: () => Promise.resolve(),
+  refreshCart: () => Promise.resolve(),
+  setError: () => {},
+  setOrderFinished: () => {}
 })
 
 const ShippingContextProvider = ({ children }: { children: ReactNode }) => {
@@ -67,6 +97,15 @@ const ShippingContextProvider = ({ children }: { children: ReactNode }) => {
     Subdivision[]
   >(defaultShippingState.shippingSubdivisions)
   const [token, setToken] = useState<CheckoutToken>()
+  const [shippingAddressData, setShippingAddressData] =
+    useState<AddressFormInput>()
+  const [order, setOrder] = useState<
+    CheckoutCaptureResponse | FakeCheckoutCaptureResponse
+  >()
+  const [error, setError] = useState<string>()
+  const [orderFinished, setOrderFinished] = useState<boolean>(
+    defaultShippingState.orderFinished
+  )
 
   // Step 1: Get shipping countries
 
@@ -92,18 +131,19 @@ const ShippingContextProvider = ({ children }: { children: ReactNode }) => {
 
   // Step 3: Get shipping methods, including a couple of smaller steps
 
-  // Go over to cart store to get cart
-  const { cart } = useContext(CartContext)
+  // Go over to cart store to get cart, also setCart for step 5
+  const { cart, setCart } = useContext(CartContext)
 
   useEffect(() => {
     const getToken = async () => {
+      console.log('GETTING TOKEN')
       const token = await commerce.checkout.generateToken(cart!.id, {
         type: 'cart'
       })
       setToken(token)
     }
 
-    if (cart) getToken()
+    if (cart && cart.line_items.length) getToken()
   }, [cart])
 
   // Get shipping methods
@@ -111,23 +151,60 @@ const ShippingContextProvider = ({ children }: { children: ReactNode }) => {
     countryCode: string,
     subdivisionCode?: string
   ) => {
-    if (token) {
-      setLoading(true)
+    if (!token) return
 
-      const response = await commerce.checkout.getShippingOptions(token.id, {
-        country: countryCode,
-        region: subdivisionCode
-      })
+    setLoading(true)
 
-      setShippingMethods(
-        response.map(method => ({
-          label: `${method.description} - ${method.price.formatted_with_symbol}`,
-          value: method.id
-        }))
+    const response = await commerce.checkout.getShippingOptions(token.id, {
+      country: countryCode,
+      region: subdivisionCode
+    })
+
+    setShippingMethods(
+      response.map(method => ({
+        label: `${method.description} - ${method.price.formatted_with_symbol}`,
+        value: method.id
+      }))
+    )
+
+    setLoading(false)
+  }
+
+  // Step 4: Complete order
+  const captureCheckout = async (newOrder: CheckoutCapture) => {
+    if (!token) return
+
+    try {
+      const incomingOrder = await commerce.checkout.capture(token.id, newOrder)
+      setOrder(incomingOrder)
+    } catch (error) {
+      console.log(
+        'ERROR - EXPECTED SINCE WE DO NOT HAVE CREDIT CARD TO LINK COMMERCE AND STRIPE',
+        error
       )
 
-      setLoading(false)
+      setError(
+        'An error happened as expected since we do not have credit card to link Commerce and Stripe'
+      )
+      // set fake completed Order
+
+      if (shippingAddressData) {
+        setOrder({
+          customer: {
+            firstname: shippingAddressData.firstName,
+            lastname: shippingAddressData.lastName,
+            email: shippingAddressData.email
+          },
+          customer_reference: 'MY_FAKE_ORDER_REFERENCE'
+        })
+      }
     }
+  }
+
+  // Step 5: Since this Cart has successfully been turned into an Order, we "refresh Cart", i.e. create a new Cart in commerce.js
+  const refreshCart = async () => {
+    const newCart = await commerce.cart.refresh()
+    setCart(newCart)
   }
 
   const shippingContextData = {
@@ -137,7 +214,17 @@ const ShippingContextProvider = ({ children }: { children: ReactNode }) => {
     shippingMethods,
     getShippingCountries,
     getShippingSubdivisions,
-    getShippingMethods
+    getShippingMethods,
+    setShippingAddressData,
+    shippingAddressData,
+    token,
+    captureCheckout,
+    refreshCart,
+    setError,
+    error,
+    order,
+    orderFinished,
+    setOrderFinished
   }
 
   return (

@@ -2,17 +2,23 @@ import Box from '@mui/material/Box'
 import CircularProgress from '@mui/material/CircularProgress'
 import { styled } from '@mui/material/styles'
 
-const StyledBox = styled(Box)(
-  ({ theme }) => `
+interface Props {
+  customHeight?: string
+}
+
+const StyledBox = styled(Box)<Props>(
+  ({ theme, customHeight }) => `
     display: flex;
     justify-content: center;
     align-items: center;
-    height: calc(100vh - ${theme.mixins.toolbar.minHeight}px);
+    height: ${
+      customHeight || `calc(100vh - ${theme.mixins.toolbar.minHeight}px)`
+    };
   `
 )
 
-const Spinner = () => (
-  <StyledBox>
+const Spinner = ({ customHeight }: Props) => (
+  <StyledBox customHeight={customHeight}>
     <CircularProgress />
   </StyledBox>
 )

@@ -4,10 +4,14 @@ import StepLabel from '@mui/material/StepLabel'
 import Stepper from '@mui/material/Stepper'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-import { useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import Confirmation from './Confirmation'
 import AddressForm from './AddressForm'
 import PaymentForm from './PaymentForm'
+import { CartContext } from '../../contexts/cart'
+import { useNavigate } from 'react-router-dom'
+import Spinner from '../layout/Spinner'
+import { ShippingContext } from '../../contexts/shipping'
 
 const steps = ['Shipping Address', 'Payment Details']
 
@@ -19,8 +23,27 @@ const StyledPaper = styled(Paper)`
 
 const Checkout = () => {
   const [activeStep, setActiveStep] = useState(0)
+  const { loading, cart } = useContext(CartContext)
+  console.log('CART', cart)
+  // const { shippingSubdivisions } = useContext(ShippingContext)
+  // const navigate = useNavigate()
 
-  const Form = () => (activeStep === 0 ? <AddressForm /> : <PaymentForm />)
+  // Route protection
+  // useEffect(() => {
+  // if (!loading && !cart.) navigate('/')
+  // }, [loading])
+
+  const goNextStep = () => setActiveStep(activeStep + 1)
+  const goBackStep = () => setActiveStep(activeStep - 1)
+
+  const Form =
+    activeStep === 0 ? (
+      <AddressForm goNextStep={goNextStep} />
+    ) : (
+      <PaymentForm goBackStep={goBackStep} goNextStep={goNextStep} />
+    )
+
+  if (loading) return <Spinner />
 
   return (
     <StyledPaper elevation={3}>
@@ -34,7 +57,7 @@ const Checkout = () => {
           </Step>
         ))}
       </Stepper>
-      {activeStep === steps.length ? <Confirmation /> : <Form />}
+      {activeStep === steps.length ? <Confirmation /> : Form}
     </StyledPaper>
   )
 }

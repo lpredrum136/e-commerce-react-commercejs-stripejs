@@ -36,3 +36,11 @@ https://dashboard.chec.io/settings/gateways 04/24 242 42424
 
 We actually need to register at https://dashboard.chec.io and add credit card data to create connection from Commerce to Stripe and send a confirmation email upon order completion,
 but we don't really care
+
+Deploy:
+- Netlify, connect to github
+- Base dir: leave empty
+- Advanced build settings: add env vars
+- Avoid warning === error? Build command: CI='' npm run build
+- page not found when routing?
+https://dev.to/rajeshroyal/page-not-found-error-on-netlify-reactjs-react-router-solved-43oa

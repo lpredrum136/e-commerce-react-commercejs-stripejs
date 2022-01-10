@@ -31,7 +31,6 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<Cart>()
 
   const getCart = async () => {
-    console.log('GETTING CART...')
     const cart = await commerce.cart.retrieve()
     setCart(cart)
     setLoading(false)

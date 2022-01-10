@@ -48,8 +48,7 @@ interface ShippingContextDefault {
   ) => Promise<void>
   setShippingAddressData: Dispatch<SetStateAction<AddressFormInput | undefined>>
   setError: Dispatch<SetStateAction<string | undefined>>
-  orderFinished: boolean
-  setOrderFinished: Dispatch<SetStateAction<boolean>>
+  setLoading: Dispatch<SetStateAction<boolean>>
   captureCheckout: (newOrder: CheckoutCapture) => Promise<void>
   refreshCart: () => Promise<void>
   shippingAddressData?: AddressFormInput
@@ -60,17 +59,12 @@ interface ShippingContextDefault {
 
 const defaultShippingState: Pick<
   ShippingContextDefault,
-  | 'loading'
-  | 'shippingCountries'
-  | 'shippingSubdivisions'
-  | 'shippingMethods'
-  | 'orderFinished'
+  'loading' | 'shippingCountries' | 'shippingSubdivisions' | 'shippingMethods'
 > = {
   loading: false,
   shippingCountries: [],
   shippingSubdivisions: [],
-  shippingMethods: [],
-  orderFinished: false
+  shippingMethods: []
 }
 
 export const ShippingContext = createContext<ShippingContextDefault>({
@@ -82,7 +76,7 @@ export const ShippingContext = createContext<ShippingContextDefault>({
   captureCheckout: () => Promise.resolve(),
   refreshCart: () => Promise.resolve(),
   setError: () => {},
-  setOrderFinished: () => {}
+  setLoading: () => {}
 })
 
 const ShippingContextProvider = ({ children }: { children: ReactNode }) => {
@@ -103,9 +97,6 @@ const ShippingContextProvider = ({ children }: { children: ReactNode }) => {
     CheckoutCaptureResponse | FakeCheckoutCaptureResponse
   >()
   const [error, setError] = useState<string>()
-  const [orderFinished, setOrderFinished] = useState<boolean>(
-    defaultShippingState.orderFinished
-  )
 
   // Step 1: Get shipping countries
 
@@ -136,7 +127,6 @@ const ShippingContextProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     const getToken = async () => {
-      console.log('GETTING TOKEN')
       const token = await commerce.checkout.generateToken(cart!.id, {
         type: 'cart'
       })
@@ -223,8 +213,7 @@ const ShippingContextProvider = ({ children }: { children: ReactNode }) => {
     setError,
     error,
     order,
-    orderFinished,
-    setOrderFinished
+    setLoading
   }
 
   return (

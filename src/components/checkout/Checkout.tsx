@@ -23,20 +23,24 @@ const StyledPaper = styled(Paper)`
 
 const Checkout = () => {
   const [activeStep, setActiveStep] = useState(0)
+  const orderFinished = activeStep === steps.length
   const { loading, cart } = useContext(CartContext)
-  console.log('CART', cart)
-  // const { shippingSubdivisions } = useContext(ShippingContext)
-  // const navigate = useNavigate()
+  const { order } = useContext(ShippingContext)
+  const navigate = useNavigate()
 
   // Route protection
-  // useEffect(() => {
-  // if (!loading && !cart.) navigate('/')
-  // }, [loading])
+  useEffect(() => {
+    if (!orderFinished && !loading && !cart?.line_items.length && !order)
+      navigate('/')
+  }, [orderFinished, loading, cart, order])
 
   const goNextStep = () => setActiveStep(activeStep + 1)
   const goBackStep = () => setActiveStep(activeStep - 1)
 
-  const Form =
+  // Important: if you do it like JS Mastery: const Form = () => active...., it will cause endless loop of calling getShippingCountries
+  // Probably because AddressForm has a useEffect to call getShippingCountries() => ShippingContext gets changed => so when we do const {...} = useContext(ShippingContext)
+  // in this component, since ShippingContext has been changed, it rerender this whole checkout Component, causing AddressForm to rerender => infinite loop
+  const form =
     activeStep === 0 ? (
       <AddressForm goNextStep={goNextStep} />
     ) : (
@@ -57,7 +61,7 @@ const Checkout = () => {
           </Step>
         ))}
       </Stepper>
-      {activeStep === steps.length ? <Confirmation /> : Form}
+      {activeStep === steps.length ? <Confirmation /> : form}
     </StyledPaper>
   )
 }

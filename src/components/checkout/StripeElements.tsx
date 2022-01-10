@@ -2,7 +2,7 @@ import { CheckoutCapture } from '@chec/commerce.js/types/checkout-capture'
 import Box from '@mui/material/Box'
 import { useStripe, useElements, CardElement } from '@stripe/react-stripe-js'
 import { StripeCardElement } from '@stripe/stripe-js'
-import { FormEvent, useContext } from 'react'
+import { FormEvent, useContext, useEffect } from 'react'
 import { ShippingContext } from '../../contexts/shipping'
 import NavButtons from './NavButtons'
 
@@ -22,11 +22,19 @@ const StripeElements = ({
     token,
     captureCheckout,
     refreshCart,
-    setOrderFinished
+    loading,
+    order,
+    setLoading
   } = useContext(ShippingContext)
+
+  useEffect(() => {
+    if (!loading && order) goNextStep()
+  }, [loading, order])
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
+    setLoading(true)
 
     if (!stripe || !elements || !shippingAddressData) {
       // Stripe.js has not yet loaded.
@@ -42,7 +50,7 @@ const StripeElements = ({
     })
 
     if (error) {
-      console.log(error)
+      console.log('ERROR CREATING PAYMENT METHOD', error)
       return
     }
 
@@ -82,8 +90,8 @@ const StripeElements = ({
 
     await captureCheckout(orderData)
     await refreshCart()
-    setOrderFinished(true)
-    goNextStep()
+
+    setLoading(false)
   }
 
   return (

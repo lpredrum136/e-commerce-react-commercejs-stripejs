@@ -1,5 +1,7 @@
+import Alert from '@mui/material/Alert'
 import Box from '@mui/material/Box'
 import Grid from '@mui/material/Grid'
+import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 import { useContext, useEffect } from 'react'
 import { SubmitHandler, useForm } from 'react-hook-form'
@@ -19,6 +21,10 @@ export interface AddressFormInput {
   shippingSubdivision: string
   shippingMethod: string
 }
+
+const StyledAlert = styled(Alert)`
+  margin: 1rem auto 0;
+`
 
 const AddressForm = ({ goNextStep }: { goNextStep: () => void }) => {
   // Shipping details
@@ -162,6 +168,11 @@ const AddressForm = ({ goNextStep }: { goNextStep: () => void }) => {
             required
             error={errors.zip}
           />
+
+          <StyledAlert severity="warning">
+            For this project, only select US, Canada or Mexico as Shipping
+            Country
+          </StyledAlert>
 
           <RegisteredFormInput
             type="select"

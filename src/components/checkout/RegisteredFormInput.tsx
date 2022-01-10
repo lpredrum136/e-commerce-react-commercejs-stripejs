@@ -85,8 +85,8 @@ const RegisteredFormInput = (props: Props) => {
           {/* Just for the purpose of this project */}
           {name === 'shippingMethod' && (
             <FormHelperText>
-              For this project, only US, Canada and Mexico work and will
-              populate this field
+              If US, Canada or Mexico is selected as Shipping Country,
+              "Standard" should be available here as an option to select
             </FormHelperText>
           )}
         </FormControl>

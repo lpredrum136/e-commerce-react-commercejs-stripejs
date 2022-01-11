@@ -25,7 +25,7 @@ const Checkout = () => {
   const [activeStep, setActiveStep] = useState(0)
   const orderFinished = activeStep === steps.length
   const { loading, cart } = useContext(CartContext)
-  const { order } = useContext(ShippingContext)
+  const { order, getToken } = useContext(ShippingContext)
   const navigate = useNavigate()
 
   // Route protection
@@ -33,6 +33,11 @@ const Checkout = () => {
     if (!orderFinished && !loading && !cart?.line_items.length && !order)
       navigate('/')
   }, [orderFinished, loading, cart, order])
+
+  // Get token for cart
+  useEffect(() => {
+    if (cart && cart.line_items.length) getToken()
+  }, [cart])
 
   const goNextStep = () => setActiveStep(activeStep + 1)
   const goBackStep = () => setActiveStep(activeStep - 1)

@@ -51,6 +51,7 @@ interface ShippingContextDefault {
   setLoading: Dispatch<SetStateAction<boolean>>
   captureCheckout: (newOrder: CheckoutCapture) => Promise<void>
   refreshCart: () => Promise<void>
+  getToken: () => Promise<void>
   shippingAddressData?: AddressFormInput
   token?: CheckoutToken
   order?: CheckoutCaptureResponse | FakeCheckoutCaptureResponse
@@ -76,7 +77,8 @@ export const ShippingContext = createContext<ShippingContextDefault>({
   captureCheckout: () => Promise.resolve(),
   refreshCart: () => Promise.resolve(),
   setError: () => {},
-  setLoading: () => {}
+  setLoading: () => {},
+  getToken: () => Promise.resolve()
 })
 
 const ShippingContextProvider = ({ children }: { children: ReactNode }) => {
@@ -97,6 +99,18 @@ const ShippingContextProvider = ({ children }: { children: ReactNode }) => {
     CheckoutCaptureResponse | FakeCheckoutCaptureResponse
   >()
   const [error, setError] = useState<string>()
+
+  // Step 0: Get checkout token
+  // Go over to cart store to get cart, also setCart for step 5
+  const { cart, setCart } = useContext(CartContext)
+
+  const getToken = async () => {
+    console.log('GETTING TOKEN')
+    const token = await commerce.checkout.generateToken(cart!.id, {
+      type: 'cart'
+    })
+    setToken(token)
+  }
 
   // Step 1: Get shipping countries
 
@@ -120,23 +134,8 @@ const ShippingContextProvider = ({ children }: { children: ReactNode }) => {
     setLoading(false)
   }
 
-  // Step 3: Get shipping methods, including a couple of smaller steps
+  // Step 3: Get shipping methods
 
-  // Go over to cart store to get cart, also setCart for step 5
-  const { cart, setCart } = useContext(CartContext)
-
-  useEffect(() => {
-    const getToken = async () => {
-      const token = await commerce.checkout.generateToken(cart!.id, {
-        type: 'cart'
-      })
-      setToken(token)
-    }
-
-    if (cart && cart.line_items.length) getToken()
-  }, [cart])
-
-  // Get shipping methods
   const getShippingMethods = async (
     countryCode: string,
     subdivisionCode?: string
@@ -213,7 +212,8 @@ const ShippingContextProvider = ({ children }: { children: ReactNode }) => {
     setError,
     error,
     order,
-    setLoading
+    setLoading,
+    getToken
   }
 
   return (

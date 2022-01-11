@@ -24,7 +24,7 @@ const Cart = () => {
 
   const emptiedCart = (
     <Box sx={{ textAlign: 'center' }}>
-      <Typography variant="h6">
+      <Typography variant="h6" gutterBottom>
         You have no items in your shopping cart
       </Typography>
       <Button variant="outlined" component={Link} to="/">

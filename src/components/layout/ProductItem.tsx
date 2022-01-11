@@ -56,7 +56,7 @@ const StyledCardActions = styled(CardActions)<{ source: 'cart' | 'products' }>`
 `
 
 const ProductItem = ({ product, source }: Props) => {
-  const { updateCart } = useContext(CartContext)
+  const { updateCart, removeFromCart } = useContext(CartContext)
 
   return (
     <Grid item xs={3}>
@@ -109,7 +109,9 @@ const ProductItem = ({ product, source }: Props) => {
           <IconButton
             aria-label="Add to Cart"
             onClick={() => {
-              updateCart(product.id, 'add')
+              if (source === 'products')
+                updateCart((product as Product).id, 'add')
+              else removeFromCart((product as LineItem).id)
             }}
           >
             {source === 'products' ? (

@@ -15,6 +15,7 @@ interface CartContextDefault {
   getCart: () => Promise<void>
   updateCart: (productId: string, operation: 'add' | 'remove') => Promise<void>
   emptyCart: () => Promise<void>
+  removeFromCart: (productId: string) => Promise<void>
 }
 
 export const CartContext = createContext<CartContextDefault>({
@@ -22,7 +23,8 @@ export const CartContext = createContext<CartContextDefault>({
   getCart: () => Promise.resolve(),
   updateCart: () => Promise.resolve(),
   emptyCart: () => Promise.resolve(),
-  setCart: () => {}
+  setCart: () => {},
+  removeFromCart: () => Promise.resolve()
 })
 
 const CartContextProvider = ({ children }: { children: ReactNode }) => {
@@ -51,6 +53,11 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
     }
   }
 
+  const removeFromCart = async (productId: string) => {
+    const response = await commerce.cart.remove(productId)
+    if (response.success) setCart(response.cart)
+  }
+
   const emptyCart = async () => {
     const response = await commerce.cart.empty()
     if (response.success) setCart(response.cart)
@@ -62,7 +69,8 @@ const CartContextProvider = ({ children }: { children: ReactNode }) => {
     getCart,
     updateCart,
     emptyCart,
-    setCart
+    setCart,
+    removeFromCart
   }
 
   return (

@@ -7,7 +7,6 @@ import {
   ReactNode,
   SetStateAction,
   useContext,
-  useEffect,
   useState
 } from 'react'
 import { AddressFormInput } from '../components/checkout/AddressForm'

@@ -42,7 +42,7 @@ const Cart = () => {
       </Grid>
       <StyledBox>
         <Typography variant="h5" flexGrow={1}>
-          Subtotal: {cart?.subtotal.formatted_with_symbol}
+          Total: {cart?.subtotal.formatted_with_symbol}
         </Typography>
         <Button
           size="large"

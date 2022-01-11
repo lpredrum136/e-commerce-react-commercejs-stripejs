@@ -37,7 +37,7 @@ const Navbar = () => {
         >
           Henry Shop
         </Typography>
-        {pathname !== '/cart' && (
+        {pathname !== '/cart' && pathname !== '/checkout' && (
           <IconButton
             aria-label="Show cart items"
             color="inherit"
